@@ -14,4 +14,4 @@ class GroupMessage(Filter):
         self.group_id = GROUP_ID
 
     async def __call__(self, message: Message) -> bool:
-        return message.chat.id == self.group_id
+        return f"{message.chat.id}" == self.group_id
