@@ -4,6 +4,7 @@ import logging
 
 from dotenv import load_dotenv
 from aiogram import Dispatcher, Bot
+from aiogram.enums import ParseMode
 
 from app.handlers import router  # Импортируем роутеры
 
@@ -13,7 +14,7 @@ BOT_TOKEN = os.getenv('BOT_TOKEN')
 
 
 async def main():
-    bot = Bot(token=BOT_TOKEN)
+    bot = Bot(token=BOT_TOKEN, parse_mode=ParseMode.HTML)
     dp = Dispatcher()
     dp.include_router(router)
     await dp.start_polling(bot)

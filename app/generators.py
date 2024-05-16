@@ -17,6 +17,6 @@ async def gpt4(question):
     response = await client.chat.completions.create(
         messages=[{"role": "user",
                    "content": str(question)}],
-        model="gpt-3.5-turbo"
+        model="gpt-4o"
     )
     return response
