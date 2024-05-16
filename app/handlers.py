@@ -76,13 +76,20 @@ async def ban(message: Message, command: CommandObject):
     mention = reply.from_user.mention_html(reply.from_user.first_name)
 
     with suppress(TelegramBadRequest):
-        await message.bot.ban_chat_member(
+        member = await message.bot.get_chat_member(
             chat_id=message.chat.id,
             user_id=reply.from_user.id,
-            until_date=until_date,
         )
-        await message.answer(f"😱 Пользователя <b>{mention}</b> забанили до " +
-                             f"{until_date.strftime('%H:%M %d/%B/%Y')}!")
+        if member.status not in ['creator', 'administrator']:
+            await message.bot.ban_chat_member(
+                chat_id=message.chat.id,
+                user_id=reply.from_user.id,
+                until_date=until_date,
+            )
+            await message.answer(f"😱 Пользователя <b>{mention}</b> забанили до " +
+                                 f"{until_date.strftime('%H:%M %d/%B/%Y')}!")
+        else:
+            await message.reply("😶‍🌫️ Таких нам банить нельзя!")
 
 
 @router.message(Command('mute'), GroupMessage())
@@ -96,14 +103,21 @@ async def mute(message: Message, command: CommandObject):
     mention = reply.from_user.mention_html(reply.from_user.username)
 
     with suppress(TelegramBadRequest):
-        await message.bot.restrict_chat_member(
+        member = await message.bot.get_chat_member(
             chat_id=message.chat.id,
             user_id=reply.from_user.id,
-            until_date=until_date,
-            permissions=ChatPermissions(can_send_messages=False),
         )
-    await message.answer(f"🤐 Пользователя <b>{mention}</b> замутили до " +
-                         f"{until_date.strftime('%H:%M %d/%B/%Y')}!")
+        if member.status not in ['creator', 'administrator']:
+            await message.bot.restrict_chat_member(
+                chat_id=message.chat.id,
+                user_id=reply.from_user.id,
+                until_date=until_date,
+                permissions=ChatPermissions(can_send_messages=False),
+            )
+            await message.answer(f"🤐 Пользователя <b>{mention}</b> замутили до " +
+                                 f"{until_date.strftime('%H:%M %d/%B/%Y')}!")
+        else:
+            await message.reply("😶‍🌫️ Таких нам мутить нельзя!")
 
 
 @router.message(Generate.text)
@@ -122,7 +136,7 @@ async def gpt_response(message: Message,
     await state.clear()
 
 
-@router.message(F.text)
+@router.message(F.text, GroupMessage())
 async def echo_message(message: Message) -> Any:
     """Обработчик банвордов"""
     for word in message.text.lower().strip().split():
